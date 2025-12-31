@@ -2,67 +2,133 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Huygens : Version Finale</title>
+    <title>Huygens : Layout Latéral</title>
     <style>
+        /* LAYOUT GENERAL */
         body { 
             background: #000; color: #eee; font-family: 'Segoe UI', sans-serif; 
-            display: flex; flex-direction: column; align-items: center; 
-            padding: 10px; margin: 0;
+            margin: 0; padding: 0; height: 100vh; width: 100vw;
+            display: flex; flex-direction: row; overflow: hidden;
+        }
+
+        /* BARRE LATERALE (Gauche) */
+        .sidebar {
+            width: 340px;
+            background: #111;
+            border-right: 1px solid #333;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.5);
+            flex-shrink: 0; /* Ne pas rétrécir */
+            z-index: 10;
+        }
+
+        /* ZONE PRINCIPALE (Droite) */
+        .main-view {
+            flex-grow: 1;
+            background: #050505;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background-image: radial-gradient(circle at center, #111 0%, #000 100%);
         }
 
         canvas { 
-            background: #050505; border: 1px solid #444; 
-            box-shadow: 0 0 50px #000; margin-bottom: 10px; 
+            background: #000; border: 1px solid #444; 
+            box-shadow: 0 0 60px #000; 
             cursor: crosshair;
         }
 
-        /* DASHBOARD */
-        .dashboard {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
-            width: 700px; max-width: 95%;
-            background: #151515; padding: 15px; border-radius: 8px; border: 1px solid #333;
-            margin-bottom: 10px; font-family: 'Segoe UI', sans-serif;
+        /* STYLES DES PANNEAUX */
+        .panel { 
+            background: #1a1a1a; padding: 15px; border-radius: 6px; border: 1px solid #333; 
         }
-
-        .panel { padding: 10px; background: #222; border-radius: 5px; border: 1px solid #444; display: flex; flex-direction: column; justify-content: center; }
         
-        .panel h3 { margin: 0 0 10px 0; font-size: 14px; color: #aaa; border-bottom: 1px solid #444; padding-bottom: 5px; font-weight: bold; text-align: center; }
+        .panel h3 { 
+            margin: 0 0 10px 0; font-size: 13px; color: #aaa; 
+            border-bottom: 1px solid #444; padding-bottom: 5px; 
+            font-weight: bold; text-transform: uppercase; letter-spacing: 1px;
+        }
         
-        .formula { font-family: 'Times New Roman', serif; font-style: italic; font-size: 18px; text-align: center; margin-bottom: 10px; color: #fff; }
+        .formula { font-family: 'Times New Roman', serif; font-style: italic; font-size: 16px; text-align: center; margin-bottom: 10px; color: #fff; }
         
-        .velocity-stack { display: flex; flex-direction: column; gap: 5px; font-family: monospace; font-size: 14px; }
-        .velocity-row { display: flex; justify-content: space-between; align-items: center; padding: 2px 0; border-bottom: 1px dotted #333;}
+        .velocity-stack { display: flex; flex-direction: column; gap: 8px; font-family: monospace; font-size: 13px; }
+        .velocity-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 5px; border-bottom: 1px dotted #333;}
         .velocity-row:last-child { border-bottom: none; }
         
         .dynamic-val { color: #4af; font-weight: bold; }
         .no-wrap { white-space: nowrap; }
 
-        .controls { 
-            width: 700px; max-width: 95%;
-            background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid #333; 
-            display: flex; flex-direction: column; gap: 10px;
-        }
+        /* CONTROLS */
+        .control-group { display: flex; flex-direction: column; gap: 12px; }
 
-        .control-row { display: flex; align-items: center; gap: 15px; }
-        label { width: 140px; color: #bbb; font-size: 14px; text-align: right; }
-        input[type=range] { flex-grow: 1; cursor: pointer; height: 5px; }
+        .control-row { display: flex; align-items: center; justify-content: space-between; font-size: 13px;}
+        label { color: #ccc; }
+        input[type=range] { width: 120px; cursor: pointer; height: 4px; accent-color: #4af; }
         
-        .checkbox-group { display: flex; gap: 20px; align-items: center; justify-content: center; width: 100%; background: #222; padding: 8px; border-radius: 4px;}
-        .checkbox-group label { width: auto; color: #fff; cursor: pointer; font-weight: bold; }
-        input[type=checkbox] { transform: scale(1.3); margin-right: 8px; cursor: pointer; }
+        .checkbox-group { display: flex; flex-direction: column; gap: 8px; background: #222; padding: 10px; border-radius: 4px;}
+        .checkbox-group label { color: #fff; cursor: pointer; font-size: 13px; display: flex; align-items: center;}
+        input[type=checkbox] { transform: scale(1.2); margin-right: 10px; cursor: pointer; accent-color: #4af; }
 
-        .buttons-row { display: flex; gap: 10px; margin-bottom: 5px; justify-content: center; width: 100%; }
-        button { padding: 8px 20px; background: #444; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; min-width: 100px; }
-        button:hover { background: #555; }
+        .buttons-row { display: flex; gap: 10px; margin-bottom: 5px; }
+        button { flex: 1; padding: 10px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;}
+        button:hover { background: #555; border-color: #888; }
 
-        .legend { display: flex; gap: 20px; font-size: 12px; color: #aaa; margin-bottom: 5px; flex-wrap: wrap; justify-content: center;}
-        .dot { width: 10px; height: 10px; display: inline-block; margin-right: 4px; border-radius: 50%; vertical-align: middle;}
-        .bar { height: 4px; width: 25px; display: inline-block; margin-right: 4px; vertical-align: middle; }
+        /* LEGENDE VERTICALE */
+        .legend { display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: #aaa; }
+        .legend-item { display: flex; align-items: center; }
+        .dot { width: 10px; height: 10px; display: inline-block; margin-right: 8px; border-radius: 50%; }
+        .bar { height: 4px; width: 25px; display: inline-block; margin-right: 8px; }
+
+        /* SCROLLBAR STYLE */
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: #111; }
+        .sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
     </style>
 </head>
 <body>
 
-    <div class="dashboard">
+    <div class="sidebar">
+        
+        <div style="text-align:center; font-weight:bold; color:#fff; font-size:18px; border-bottom:1px solid #333; padding-bottom:15px;">
+            Huygens & Descartes
+        </div>
+
+        <div class="buttons-row">
+            <button onclick="resetSim()">↺ RESET</button>
+            <button onclick="togglePause()" id="pauseBtn">⏸ PAUSE</button>
+        </div>
+
+        <div class="panel">
+            <h3>Affichage</h3>
+            <div class="checkbox-group">
+                <label style="color:#8f8"><input type="checkbox" id="checkReflect" onchange="drawOnly()"> Onde Réfléchie</label>
+                <label style="color:#ff8"><input type="checkbox" id="checkRefract" checked onchange="drawOnly()"> Onde Réfractée</label>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Paramètres</h3>
+            <div class="control-group">
+                <div class="control-row">
+                    <label style="color:#f55; font-weight:bold;">Angle i₁</label>
+                    <input type="range" id="angleSlider" min="0" max="85" value="45">
+                </div>
+                <div class="control-row">
+                    <label>Indice n₁ (Haut)</label>
+                    <input type="range" id="n1Slider" min="1.0" max="2.5" step="0.1" value="1.0" oninput="resetSim()">
+                </div>
+                <div class="control-row">
+                    <label>Indice n₂ (Bas)</label>
+                    <input type="range" id="n2Slider" min="1.0" max="2.5" step="0.1" value="1.5" oninput="resetSim()">
+                </div>
+            </div>
+        </div>
+
         <div class="panel">
             <h3>Vitesses (v = c/n)</h3>
             <div class="velocity-stack">
@@ -75,70 +141,60 @@
                     <span class="no-wrap">v₂ = <span id="v2_val" class="dynamic-val">0.67</span>&nbsp;c</span>
                 </div>
             </div>
-            <div style="font-size:11px; color:#666; text-align:center; margin-top:8px;">
-                n augmente ➤ v diminue
-            </div>
         </div>
 
         <div class="panel">
             <h3>Lois Optiques</h3>
-            <div class="formula" style="font-size: 16px;">
-                Réfraction: <span style="color:#f88">n₁</span>·sin(<span style="color:#f88">i₁</span>) = <span style="color:#ff8">n₂</span>·sin(<span style="color:#ff8">i₂</span>)<br>
-                Réflexion: <span style="color:#f88">i₁</span> = <span style="color:#8f8">r</span>
+            <div class="formula" style="font-size: 14px; text-align: left;">
+                <div style="margin-bottom:5px;">Réfraction : <br><span style="color:#f88">n₁</span>·sin(<span style="color:#f88">i₁</span>) = <span style="color:#ff8">n₂</span>·sin(<span style="color:#ff8">i₂</span>)</div>
+                <div>Réflexion : <br><span style="color:#f88">i₁</span> = <span style="color:#8f8">r</span></div>
             </div>
         </div>
+
+        <div class="panel">
+            <h3>Simulation</h3>
+            <div class="control-group">
+                <div class="control-row">
+                    <label>Vitesse Anim</label>
+                    <input type="range" id="speedSlider" min="0.1" max="2.0" step="0.1" value="0.6">
+                </div>
+                <div class="control-row">
+                    <label>Densité Sources</label>
+                    <input type="range" id="densitySlider" min="5" max="80" step="1" value="30" oninput="initSources()">
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h3>Légende</h3>
+            <div class="legend">
+                <div class="legend-item"><span class="bar" style="background:#f00;"></span>Rayon Incident</div>
+                <div class="legend-item"><span class="bar" style="background:#0f0;"></span>Rayon Réfléchi</div>
+                <div class="legend-item"><span class="bar" style="background:#ff0;"></span>Rayon Réfracté</div>
+                <div class="legend-item"><span class="dot" style="border:2px solid #48f;"></span>Onde Huygens</div>
+            </div>
+        </div>
+
     </div>
 
-    <canvas id="simCanvas" width="700" height="450"></canvas>
-
-    <div class="legend">
-        <div><span class="bar" style="background:#f00;"></span>Rayon Incident</div>
-        <div><span class="bar" style="background:#0f0;"></span>Rayon Réfléchi</div>
-        <div><span class="bar" style="background:#ff0;"></span>Rayon Réfracté</div>
-        <div><span class="dot" style="border:2px solid #48f;"></span>Huygens</div>
-    </div>
-
-    <div class="controls">
-        <div class="buttons-row">
-            <button onclick="resetSim()">↺ RESTART</button>
-            <button onclick="togglePause()" id="pauseBtn">⏸ PAUSE</button>
-        </div>
-
-        <div class="checkbox-group">
-            <span style="color:#aaa; font-size:14px;">ONDES :</span>
-            <label style="color:#8f8"><input type="checkbox" id="checkReflect" onchange="drawOnly()"> Réflexion</label>
-            <label style="color:#ff8"><input type="checkbox" id="checkRefract" checked onchange="drawOnly()"> Réfraction</label>
-        </div>
-
-        <div class="control-row">
-            <label>Vitesse Simu</label>
-            <input type="range" id="speedSlider" min="0.1" max="2.0" step="0.1" value="0.6">
-        </div>
-
-        <div class="control-row">
-            <label style="color:#f55; font-weight:bold;">Angle Incident i₁</label>
-            <input type="range" id="angleSlider" min="0" max="85" value="45">
-        </div>
-        
-        <div class="control-row">
-            <label>Indice n₁ (Haut)</label>
-            <input type="range" id="n1Slider" min="1.0" max="2.5" step="0.1" value="1.0" oninput="resetSim()">
-        </div>
-
-        <div class="control-row">
-            <label>Indice n₂ (Bas)</label>
-            <input type="range" id="n2Slider" min="1.0" max="2.5" step="0.1" value="1.5" oninput="resetSim()">
-        </div>
-
-        <div class="control-row" style="border-top: 1px solid #333; padding-top: 10px;">
-            <label>Densité Sources</label>
-            <input type="range" id="densitySlider" min="5" max="80" step="1" value="30" oninput="initSources()">
-        </div>
+    <div class="main-view">
+        <canvas id="simCanvas" width="800" height="550"></canvas>
     </div>
 
 <script>
 const canvas = document.getElementById('simCanvas');
 const ctx = canvas.getContext('2d');
+
+// Ajustement de la taille du canvas pour profiter de l'espace
+const W = 800; const H = 550;
+const CX = W / 2;     
+const SURFACE_Y = H / 2; 
+const WAVELENGTH = 90; 
+
+let time = -250; 
+let sources = [];
+
+// --- LOGIQUE IDENTIQUE A PRECEDEMMENT ---
 
 let paused = false;
 function togglePause() {
@@ -149,14 +205,6 @@ function togglePause() {
 function drawOnly() {
     if(paused) requestAnimationFrame(update);
 }
-
-const W = 700; const H = 450;
-const CX = W / 2;     
-const SURFACE_Y = H / 2; 
-const WAVELENGTH = 90; 
-
-let time = -250; 
-let sources = [];
 
 class Source {
     constructor(x, y) {
@@ -170,11 +218,9 @@ class Source {
         let dx = this.x - CX;
         let dy = this.y - SURFACE_Y;
         let projDist = dx * px + dy * py;
-        
         let delta = distZero - projDist;
         let waveId = Math.floor(delta / lambda1);
         
-        // Anti-doublon strict
         if (waveId < 0) return;
 
         let phase = delta % lambda1;
@@ -195,20 +241,13 @@ class Source {
         for(let i=this.pulses.length-1; i>=0; i--) {
             let p = this.pulses[i];
             let age = t - p.t0; 
-            
             if(age < 0) continue; 
-
             let r = age / n; 
-            
-            if(r > 1200) { continue; }
-            
+            if(r > 1200) continue; 
             let alpha = Math.max(0, 0.7 - r/800);
             
-            if(mode === 1) { 
-                ctx.strokeStyle = `rgba(100, 255, 100, ${alpha})`;
-            } else { 
-                ctx.strokeStyle = `rgba(60, 160, 255, ${alpha})`;
-            }
+            if(mode === 1) ctx.strokeStyle = `rgba(100, 255, 100, ${alpha})`;
+            else ctx.strokeStyle = `rgba(60, 160, 255, ${alpha})`;
             
             ctx.lineWidth = 2;
             ctx.beginPath(); ctx.arc(this.x, this.y, r, 0, Math.PI * 2); ctx.stroke();
@@ -228,8 +267,9 @@ function initSources() {
     let val = document.getElementById('densitySlider').value;
     let n = parseInt(val);
     if(n < 2) n = 2;
+    // On étend la répartition des sources car le canvas est plus large (800px)
     for(let i=0; i<n; i++) {
-        let sx = 50 + i * (600/(n-1));
+        let sx = 50 + i * (700/(n-1));
         sources.push(new Source(sx, SURFACE_Y));
     }
 }
@@ -254,16 +294,10 @@ function drawArc(ctx, x, y, r, start, end, color, label) {
 }
 
 function drawLaserRay(ctx, x1, y1, x2, y2, color) {
-    ctx.strokeStyle = color; 
-    ctx.lineWidth = 4; 
-    ctx.lineCap = "round";
-    ctx.shadowBlur = 10;
-    ctx.shadowColor = color;
+    ctx.strokeStyle = color; ctx.lineWidth = 4; ctx.lineCap = "round";
+    ctx.shadowBlur = 10; ctx.shadowColor = color;
     ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
-    
-    ctx.strokeStyle = "#fff";
-    ctx.lineWidth = 1;
-    ctx.shadowBlur = 0;
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1; ctx.shadowBlur = 0;
     ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
 }
 
@@ -290,13 +324,12 @@ function update() {
 
     ctx.clearRect(0,0,W,H);
 
-    ctx.font = "bold 20px monospace";
-    ctx.fillStyle = "#888";
+    // Indices en fond
+    ctx.font = "bold 24px monospace";
+    ctx.fillStyle = "#333";
     ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    ctx.fillText("n₁=" + n1.toFixed(1), 20, 20);
-    ctx.textBaseline = "bottom";
-    ctx.fillText("n₂=" + n2.toFixed(1), 20, H - 20);
+    ctx.textBaseline = "top"; ctx.fillText("n₁=" + n1.toFixed(1), 20, 20);
+    ctx.textBaseline = "bottom"; ctx.fillText("n₂=" + n2.toFixed(1), 20, H - 20);
 
     let px1 = Math.sin(i1); let py1 = Math.cos(i1); 
     let fx1 = Math.cos(i1); let fy1 = -Math.sin(i1); 
@@ -310,33 +343,29 @@ function update() {
     let distZero = time / n1; 
     let lambda1 = WAVELENGTH / n1; 
 
-    ctx.strokeStyle = "#555"; ctx.setLineDash([5,5]); ctx.lineWidth = 1;
+    // NORMALE
+    ctx.strokeStyle = "#444"; ctx.setLineDash([5,5]); ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(CX, 0); ctx.lineTo(CX, H); ctx.stroke();
     ctx.setLineDash([]);
 
-    // === MILIEU 1 (HAUT) ===
+    // === ZONE HAUT ===
     ctx.save();
     ctx.beginPath(); ctx.rect(0,0,W,SURFACE_Y); ctx.clip();
     
-    // 1. Rayon Incident (ROUGE VISIBLE)
     drawLaserRay(ctx, CX - 600*px1, SURFACE_Y - 600*py1, CX, SURFACE_Y, "#f00");
     drawArc(ctx, CX, SURFACE_Y, 60, -Math.PI/2 - i1, -Math.PI/2, "#f88", "i₁");
 
-    // 2. Fronts Incidents (Rouge)
-    ctx.strokeStyle = "rgba(255, 60, 60, 0.8)"; ctx.lineWidth = 2;
-    ctx.shadowBlur = 0;
+    ctx.strokeStyle = "rgba(255, 60, 60, 0.8)"; ctx.lineWidth = 2; ctx.shadowBlur = 0;
     ctx.beginPath();
     let phase = distZero % lambda1;
     for(let k = -15; k < 30; k++) {
         let d = phase - k * lambda1;
-        let cx = CX + d * px1; 
-        let cy = SURFACE_Y + d * py1;
+        let cx = CX + d * px1; let cy = SURFACE_Y + d * py1;
         ctx.moveTo(cx - 1000*fx1, cy - 1000*fy1);
         ctx.lineTo(cx + 1000*fx1, cy + 1000*fy1);
     }
     ctx.stroke();
 
-    // 3. REFLEXION (Si coché)
     if(showReflect) {
         drawLaserRay(ctx, CX, SURFACE_Y, CX + 600*px_r, SURFACE_Y + 600*py_r, "#0f0");
         drawArc(ctx, CX, SURFACE_Y, 60, -Math.PI/2, -Math.PI/2 + i1, "#8f8", "r");
@@ -347,8 +376,7 @@ function update() {
         ctx.beginPath();
         for(let k = -15; k < 30; k++) {
             let d1 = phase - k * lambda1;
-            let cx = CX + d1 * px_r; 
-            let cy = SURFACE_Y + d1 * py_r;
+            let cx = CX + d1 * px_r; let cy = SURFACE_Y + d1 * py_r;
             ctx.moveTo(cx - 1000*fx_r, cy - 1000*fy_r);
             ctx.lineTo(cx + 1000*fx_r, cy + 1000*fy_r);
         }
@@ -356,10 +384,10 @@ function update() {
     }
     ctx.restore();
 
-    ctx.strokeStyle = "#aaa"; ctx.lineWidth = 2;
+    ctx.strokeStyle = "#888"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(0, SURFACE_Y); ctx.lineTo(W, SURFACE_Y); ctx.stroke();
 
-    // === MILIEU 2 (BAS) ===
+    // === ZONE BAS ===
     ctx.save();
     ctx.beginPath(); ctx.rect(0,SURFACE_Y,W,H-SURFACE_Y); ctx.clip();
 
@@ -371,34 +399,4 @@ function update() {
 
     if(showRefract) {
         if(!isTIR) {
-            drawLaserRay(ctx, CX, SURFACE_Y, CX + 600*px2, SURFACE_Y + 600*py2, "#ff0");
-            let angleRay = Math.atan2(py2, px2); 
-            drawArc(ctx, CX, SURFACE_Y, 60, angleRay, Math.PI/2, "#ff8", "i₂");
-        }
-        
-        for(let s of sources) s.drawCircles(ctx, time, n2, 2);
-
-        if(!isTIR) {
-            ctx.strokeStyle = "rgba(255, 255, 0, 0.4)"; ctx.lineWidth = 2;
-            ctx.shadowBlur = 0;
-            ctx.beginPath();
-            for(let k = -15; k < 30; k++) {
-                let d1 = phase - k * lambda1;
-                let d2 = d1 * (n1/n2);
-                let cx = CX + d2 * px2;
-                let cy = SURFACE_Y + d2 * py2;
-                ctx.moveTo(cx - 1000*fx2, cy - 1000*fy2);
-                ctx.lineTo(cx + 1000*fx2, cy + 1000*fy2);
-            }
-            ctx.stroke();
-        }
-    }
-    ctx.restore();
-
-    requestAnimationFrame(update);
-}
-
-update();
-</script>
-</body>
-</html>
+            drawLaserRay(
