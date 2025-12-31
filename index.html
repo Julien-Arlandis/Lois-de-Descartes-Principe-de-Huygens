@@ -399,4 +399,31 @@ function update() {
 
     if(showRefract) {
         if(!isTIR) {
-            drawLaserRay(
+            drawLaserRay(ctx, CX, SURFACE_Y, CX + 600*px2, SURFACE_Y + 600*py2, "#ff0");
+            let angleRay = Math.atan2(py2, px2); 
+            drawArc(ctx, CX, SURFACE_Y, 60, angleRay, Math.PI/2, "#ff8", "i₂");
+        }
+        for(let s of sources) s.drawCircles(ctx, time, n2, 2);
+
+        if(!isTIR) {
+            ctx.strokeStyle = "rgba(255, 255, 0, 0.4)"; ctx.lineWidth = 2; ctx.shadowBlur = 0;
+            ctx.beginPath();
+            for(let k = -15; k < 30; k++) {
+                let d1 = phase - k * lambda1;
+                let d2 = d1 * (n1/n2);
+                let cx = CX + d2 * px2; let cy = SURFACE_Y + d2 * py2;
+                ctx.moveTo(cx - 1000*fx2, cy - 1000*fy2);
+                ctx.lineTo(cx + 1000*fx2, cy + 1000*fy2);
+            }
+            ctx.stroke();
+        }
+    }
+    ctx.restore();
+
+    requestAnimationFrame(update);
+}
+
+update();
+</script>
+</body>
+</html>
