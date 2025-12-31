@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Huygens : Paramètres URL</title>
+    <title>Huygens-Descartes : Formules Pures</title>
     <style>
         body { 
             background: #000; color: #eee; font-family: 'Segoe UI', sans-serif; 
@@ -30,6 +30,10 @@
         .panel { background: #1a1a1a; padding: 12px; border-radius: 6px; border: 1px solid #333; }
         .panel h3 { margin: 0 0 10px 0; font-size: 13px; color: #aaa; border-bottom: 1px solid #444; padding-bottom: 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;}
 
+        /* STYLES MATHS */
+        .math-block { font-family: 'Times New Roman', serif; font-size: 18px; font-style: italic; line-height: 1.5; text-align: center; }
+        .math-label { font-family: 'Segoe UI', sans-serif; font-size: 12px; color: #888; display: block; text-align: left; margin-top: 5px; font-style: normal;}
+
         .velocity-stack { display: flex; flex-direction: column; gap: 5px; font-family: monospace; font-size: 13px; }
         .velocity-row { display: flex; justify-content: space-between; align-items: center; padding: 3px 0; border-bottom: 1px dotted #333;}
         .dynamic-val { color: #4af; font-weight: bold; }
@@ -47,7 +51,6 @@
         button { flex: 1; padding: 8px; background: #333; color: #fff; border: 1px solid #555; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 12px; transition: 0.2s;}
         button:hover { background: #555; border-color: #888; }
         
-        /* Bouton Copier Spécial */
         #shareBtn { background: #244; border-color: #488; }
         #shareBtn:hover { background: #355; }
 
@@ -56,7 +59,6 @@
         .dot { width: 10px; height: 10px; display: inline-block; margin-right: 8px; border-radius: 50%; }
         .bar { height: 3px; width: 20px; display: inline-block; margin-right: 8px; }
 
-        /* Toast Notification */
         #toast {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
             background: rgba(0, 255, 100, 0.9); color: #000; padding: 10px 20px;
@@ -86,6 +88,17 @@
         
         <div class="buttons-row">
             <button id="shareBtn" onclick="copyLink()">🔗 Copier le lien</button>
+        </div>
+
+        <div class="panel">
+            <h3>Lois de Descartes</h3>
+            <div class="math-block">
+                <span class="math-label">Réfraction (Loi de Snell) :</span>
+                <span style="color:#f88">n₁</span>·sin(<span style="color:#f88">i₁</span>) = <span style="color:#ff8">n₂</span>·sin(<span style="color:#ff8">i₂</span>)
+                
+                <span class="math-label" style="margin-top:10px;">Réflexion :</span>
+                <span style="color:#f88">i₁</span> = <span style="color:#8f8">r</span>
+            </div>
         </div>
 
         <div class="panel">
@@ -168,11 +181,9 @@ let time = -250;
 let sources = [];
 let paused = false;
 
-// --- GESTION URL & PARAMETRES ---
-
+// --- GESTION URL ---
 function getURLParams() {
     const params = new URLSearchParams(window.location.search);
-    // On met à jour les inputs s'ils existent dans l'URL
     if(params.has('i1')) document.getElementById('angleSlider').value = params.get('i1');
     if(params.has('n1')) document.getElementById('n1Slider').value = params.get('n1');
     if(params.has('n2')) document.getElementById('n2Slider').value = params.get('n2');
@@ -194,12 +205,11 @@ function updateURL() {
     params.set('refl', document.getElementById('checkReflect').checked ? '1' : '0');
     params.set('refr', document.getElementById('checkRefract').checked ? '1' : '0');
 
-    // Mise à jour de l'URL sans recharger la page
     window.history.replaceState({}, '', `${window.location.pathname}?${params}`);
 }
 
 function copyLink() {
-    updateURL(); // Assure que l'URL est à jour
+    updateURL();
     navigator.clipboard.writeText(window.location.href).then(() => {
         const toast = document.getElementById('toast');
         toast.style.opacity = '1';
@@ -207,19 +217,10 @@ function copyLink() {
     });
 }
 
-// Fonction centrale appelée par les inputs
-// needsReset : true si le changement demande de recharger les sources ou le temps
 function handleParamChange(needsReset) {
     updateURL();
-    if(needsReset) {
-        // Pour la densité ou les indices, on reset souvent pour éviter les sauts
-        // Mais pour n1/n2 on peut juste laisser resetSim gérer
-        // Si c'est juste la densité :
-        initSources();
-    }
+    if(needsReset) initSources();
 }
-
-// --- MOTEUR PHYSIQUE ---
 
 function togglePause() {
     paused = !paused;
@@ -227,7 +228,7 @@ function togglePause() {
 }
 
 function drawOnly() {
-    updateURL(); // Checkbox change
+    updateURL();
     if(paused) requestAnimationFrame(update);
 }
 
@@ -301,14 +302,11 @@ function initSources() {
 function resetSim() { 
     time = -250; 
     initSources(); 
-    updateURL(); // Sync au reset
+    updateURL(); 
     if(paused) togglePause();
 }
 
-// INITIALISATION
-// 1. Lire l'URL
 getURLParams();
-// 2. Initier
 initSources();
 
 function drawArc(ctx, x, y, r, start, end, color, label) {
@@ -375,7 +373,7 @@ function update() {
     ctx.beginPath(); ctx.moveTo(CX, 0); ctx.lineTo(CX, H); ctx.stroke();
     ctx.setLineDash([]);
 
-    // === HAUT ===
+    // === ZONE HAUT ===
     ctx.save();
     ctx.beginPath(); ctx.rect(0,0,W,SURFACE_Y); ctx.clip();
     
@@ -413,7 +411,7 @@ function update() {
     ctx.strokeStyle = "#888"; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(0, SURFACE_Y); ctx.lineTo(W, SURFACE_Y); ctx.stroke();
 
-    // === BAS ===
+    // === ZONE BAS ===
     ctx.save();
     ctx.beginPath(); ctx.rect(0,SURFACE_Y,W,H-SURFACE_Y); ctx.clip();
 
@@ -440,7 +438,7 @@ function update() {
     }
     ctx.restore();
 
-    // === SOURCES & FLASH (Top Layer) ===
+    // === SOURCES (TOP) ===
     for(let s of sources) {
         if(!paused) s.checkImpact(distZero, px1, py1, lambda1);
         ctx.fillStyle = "#fff"; ctx.beginPath(); ctx.arc(s.x, s.y, 3, 0, Math.PI*2); ctx.fill();
